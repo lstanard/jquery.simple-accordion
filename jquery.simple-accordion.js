@@ -1,18 +1,20 @@
-(function($) {
+;(function($) {
 	$.fn.simpleAccordion = function(options) {
 
 		var settings = $.extend({
+			activeClass: 'active',
+			tabClass: 'tab',
 			simultaneous: false,
-			slideSpeed: 600,
-			easingDown: 'easeOutCubic',
-			easingUp: 'easeInCubic',
+			slideSpeed: 300,
+			easingDown: 'swing',
+			easingUp: 'swing',
 			scrollTopSpeed: 600,
 			scrollTopOffset: 300,
 			focusOnOpen: true
 		}, options || {} );
 
 		var $this = $(this),
-			$tabs = $this.find('.tab'),
+			$tabs = $this.find('.' + settings.tabClass),
 			$panes = {};
 
 		function _init() {
@@ -43,7 +45,7 @@
 									easing: settings.easingUp
 								});
 							}
-							$(this).toggleClass('open').toggleClass('closed').parent().toggleClass('active');
+							$(this).toggleClass('open').toggleClass('closed').parent().toggleClass(settings.activeClass);
 							e.preventDefault();
 						});
 				});
@@ -54,6 +56,8 @@
 		}
 
 		_init();
+
+		return $this;
 
 	}
 })(jQuery);
