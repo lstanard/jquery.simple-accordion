@@ -5,6 +5,7 @@ Yep, another jQuery accordion plugin. What makes this one special? Absolutely no
 
 The required markup is fairly simple: 
 
+<code>
 <div id="accordion-demo">
 	<ul>
 		<li>
@@ -27,3 +28,4 @@ The required markup is fairly simple:
 		</li>
 	</ul>
 </div>
+</code>
