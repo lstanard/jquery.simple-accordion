@@ -5,12 +5,14 @@
 			activeClass: 'active',
 			tabClass: 'tab',
 			simultaneous: false,
-			slideSpeed: 300,
+			slideSpeed: 600,
 			easingDown: 'swing',
 			easingUp: 'swing',
 			scrollTopSpeed: 600,
 			scrollTopOffset: 300,
-			focusOnOpen: true
+			focusOnOpen: true,
+			openComplete: function() {},
+			closeComplete: function() {}
 		}, options || {} );
 
 		var $this = $(this),
@@ -27,13 +29,22 @@
 							if ( $(this).hasClass('closed') ) {
 								$($panes[i]).slideDown({
 									duration: settings.slideSpeed,
-									easing: settings.easingDown, 
-									complete: function() {
-										if ( settings.focusOnOpen ) {
+									easing: settings.easingDown,
+									start: function() {
+										if (settings.focusOnOpen) {
+											var t = 0;
+											for (var j in $panes) {
+												if ( j < i && $($panes[j]).parent().hasClass(settings.activeClass) )
+													t = t + $($panes[j]).innerHeight();
+											}
+											var p = settings.simultaneous ? ( ($(this).offset().top) - settings.scrollTopOffset ) : ( ($(this).offset().top - t) - settings.scrollTopOffset );
 											$('html, body').animate({
-												scrollTop: ( $(this).offset().top - settings.scrollTopOffset )
+												scrollTop: p
 											}, settings.scrollTopSpeed);
 										}
+									},
+									complete: function() {
+										settings.openComplete();
 									}
 								});
 								if ( !settings.simultaneous )
@@ -42,7 +53,10 @@
 							else {
 								$($panes[i]).slideUp({
 									duration: settings.slideSpeed,
-									easing: settings.easingUp
+									easing: settings.easingUp,
+									complete: function() {
+										settings.closeComplete();
+									}
 								});
 							}
 							$(this).toggleClass('open').toggleClass('closed').parent().toggleClass(settings.activeClass);
@@ -57,7 +71,6 @@
 
 		_init();
 
-		return $this;
+	};
 
-	}
 })(jQuery);
