@@ -1,7 +1,13 @@
-;(function($) {
-	$.fn.simpleAccordion = function(options) {
+/*!
+ * jQuery simple accordion
+ * Original author: @louisstanard
+ * Licensed under the MIT license
+ */
 
-		var settings = $.extend({
+;(function ( $, window, document ) { 
+
+	var pluginName = 'simpleAccordion',
+		defaults = {
 			activeClass: 'active',
 			tabClass: 'tab',
 			simultaneous: false,
@@ -13,64 +19,106 @@
 			focusOnOpen: true,
 			openComplete: function() {},
 			closeComplete: function() {}
-		}, options || {} );
+		};
 
-		var $this = $(this),
-			$tabs = $this.find('.' + settings.tabClass),
-			$panes = {};
+	// Plugin constructor
+	function plugin( element, options ) {
 
-		function _init() {
-			$tabs
-				.each(function(i){
-					$panes[i] = $(this).next('div')[0];
-					$(this)
-						.toggleClass('closed')
-						.on('click', function(e){
-							if ( $(this).hasClass('closed') ) {
-								$($panes[i]).slideDown({
-									duration: settings.slideSpeed,
-									easing: settings.easingDown,
-									start: function() {
-										if (settings.focusOnOpen) {
-											var t = 0;
-											for (var j in $panes) {
-												if ( j < i && $($panes[j]).parent().hasClass(settings.activeClass) )
-													t = t + $($panes[j]).innerHeight();
-											}
-											var p = settings.simultaneous ? ( ($(this).offset().top) - settings.scrollTopOffset ) : ( ($(this).offset().top - t) - settings.scrollTopOffset );
-											$('html, body').animate({
-												scrollTop: p
-											}, settings.scrollTopSpeed);
-										}
-									},
-									complete: function() {
-										settings.openComplete();
+		this._element = element[0];
+		this._options = $.extend( {}, defaults, options );
+		this._defaults = defaults;
+		this._name = pluginName;
+		
+		this.init();
+
+	}
+
+	plugin.prototype.init = function() {
+
+		var options = this._options, panes, tabs;
+
+		this._element._panes = panes = {};
+		this._element._tabs = tabs = $(this._element).find('.' + this._options.tabClass);
+		
+		tabs.each(function(i) {
+			panes[i] = $(this).next('div')[0];
+			$(this)
+				.toggleClass('closed')
+				.on('click', function(e) {
+					if ( $(this).hasClass('closed') ) {
+						// Open
+						$(panes[i]).slideDown({
+							duration: options.slideSpeed,
+							easing: options.easingDown,
+							start: function() {
+								if ( options.focusOnOpen ) {
+									var t = 0, scrollTopPosition;
+									for (var j in panes) {
+										if ( j < i && $(panes[i]).parent().hasClass(options.activeClass) )
+											t = t + $(panes[i]).innerHeight();
 									}
-								});
-								if ( !settings.simultaneous )
-									$tabs.not($(this)).not('.closed').trigger('click');
+									scrollTopPosition = options.simultaneous ? ( ($(this).offset().top) - options.scrollTopOffset ) : ( ($(this).offset().top - t) - options.scrollTopOffset ) ;
+									$('html, body').animate({
+										scrollTop: scrollTopPosition
+									}, options.scrollTopSpeed);
+								}
+							},
+							complete: function() {
+								options.openComplete();
 							}
-							else {
-								$($panes[i]).slideUp({
-									duration: settings.slideSpeed,
-									easing: settings.easingUp,
-									complete: function() {
-										settings.closeComplete();
-									}
-								});
-							}
-							$(this).toggleClass('open').toggleClass('closed').parent().toggleClass(settings.activeClass);
-							e.preventDefault();
 						});
+					}
+					else {
+						// Close
+						$(panes[i]).slideUp({
+							duration: options.slideSpeed,
+							easing: options.easingUp,
+							complete: function() {
+								options.openComplete();
+							}
+						});
+					}
+					$(this).toggleClass('open').toggleClass('closed').parent().toggleClass(options.activeClass);
+					e.preventDefault();
 				});
+		});
 
-			$.each( $panes, function(k, v){
-				$(v).hide();
-			});
-		}
+		this.close();
 
-		_init();
+	}
 
-	};
+	plugin.prototype.close = $[pluginName].close = function() {
+		// This simply hides all divs, should do more to close everything down
+		$.each( this._element._panes, function(k, v) {
+			$(v).slideUp();
+		});
+	}
 
-})(jQuery);
+	$.fn[pluginName] = $[pluginName] = function ( options ) {
+
+		/*return this.each(function () {
+			new plugin( this, options );
+		});*/
+
+		return this.each(function () {
+			if (!$.data(this, 'plugin_' + pluginName)) {
+				$.data(this, 'plugin_' + pluginName, new plugin( $(this), options ));
+			}
+		});
+
+	}
+
+	
+
+
+})( jQuery, window, document );
+
+
+// Initialization test 1
+$('#accordion-demo').simpleAccordion();
+
+// Initialization test 2
+$('#close-all').on('click', function(e) {
+	e.preventDefault();
+	$('#accordion-demo').simpleAccordion().close();
+});

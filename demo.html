@@ -19,6 +19,10 @@
 				margin: 0;
 				padding: 0;
 			}
+			#accordion-demo ul li div {
+				padding: 1px 0 0 0;
+				margin: 1px 0 0 0;
+			}
 			a.tab:link, 
 			a.tab:visited {
 				background: #efefef;
@@ -29,6 +33,12 @@
 		</style>
 	</head>
 	<body>
+
+		<div id="example">
+			Example div
+		</div>
+
+		<a href="#" id="close-all">Close all</a>
 
 		<div id="accordion-demo">
 			<ul>
@@ -66,11 +76,7 @@
 		</div>
 
 		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="../jquery.lightweight-plugin-boilerplate/jquery.lightweight-plugin-boilerplate.js"></script>
 		<script src="jquery.simple-accordion.js"></script>
-		<script>
-			$('#accordion-demo').simpleAccordion({
-				simultaneous: true
-			});
-		</script>
 	</body>
 </html>
